@@ -114,7 +114,7 @@ The app starts at [http://localhost:8080](http://localhost:8080). The SQLite dat
 
 ---
 
-## :gb: Supported property types :gb:
+## :house_with_garden:  Supported property types :house_with_garden:
 
 </div>
 

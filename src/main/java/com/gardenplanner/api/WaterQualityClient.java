@@ -37,6 +37,10 @@ public class WaterQualityClient {
 
         HttpResponse<String> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
 
+        if (response.statusCode() == 429 || response.statusCode() == 402) {
+            throw new IOException("The MyTapWater API credits have reached their limit. Please speak to the owner of this project to get this sorted.");
+        }
+
         if (response.statusCode() != 200) {
             return estimateHardness(postcode);
         }
