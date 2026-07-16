@@ -81,6 +81,15 @@ public class Database {
                 )
                 """);
 
+            stmt.execute("""
+                CREATE TABLE IF NOT EXISTS shopping_cache (
+                    query_key       TEXT PRIMARY KEY,
+                    engine          TEXT NOT NULL,
+                    results_json    TEXT NOT NULL,
+                    cached_at       TEXT NOT NULL
+                )
+                """);
+
         }
 
         try (Connection conn = getConnection()) {

@@ -83,6 +83,21 @@ Every property gets a clean URL like `/property/170345402` that you can bookmark
 
 <div align="center">
 
+### :shopping_cart: Shopping Panel :shopping_cart:
+
+</div>
+
+Click any plant card to open a slide-in shopping panel with real product listings from multiple sources:
+
+- **Google Shopping** -- live product results from hundreds of UK retailers including Crocus, B&Q, and Amazon, with prices, ratings, reviews, and direct buy links
+- **eBay** -- marketplace listings for seeds, plants, and bulk options, often at lower prices
+- **Specialist retailers** -- always-available direct search links for Thompson & Morgan, Crocus, Suttons Seeds, B&Q, RHS Plants, Amazon, and Google Shopping (no API needed)
+- **Accessory suggestions** -- contextual recommendations like ericaceous compost for acid-loving plants, trellises for climbers, and indoor pots for houseplants
+
+Shopping results are cached for 24 hours to preserve API quota. The panel works without an API key -- it simply shows the specialist retailer links instead.
+
+<div align="center">
+
 ---
 
 ## :wrench: Tech stack :wrench:
@@ -94,7 +109,7 @@ Every property gets a clean URL like `/property/170345402` that you can bookmark
 - **Frontend** -- Server-rendered HTML with vanilla JavaScript
 - **Build** -- Gradle 8.10
 
-No external API keys are required. All data sources used are freely available public APIs.
+No external API keys are required for core functionality. All environmental data sources are freely available public APIs. Optionally, add a [SerpApi](https://serpapi.com/) key for live shopping results (Google Shopping + eBay).
 
 <div align="center">
 
@@ -128,7 +143,7 @@ Buy, rent, new homes, and student property pages from Rightmove. Commercial and 
 
 </div>
 
-- **Purchase Sources** -- links to buy recommended plants from garden centres and online retailers
+- ~~**Purchase Sources** -- links to buy recommended plants from garden centres and online retailers~~ :white_check_mark: **Done!**
 - **Saved Garden Lists** -- save and manage custom lists of plants for your dream garden
 - **Saved Properties Lists** -- bookmark properties and compare their garden potential side by side
 - **Seasonal Planting Calendar** -- show when to plant, prune, and harvest each recommended plant based on the property's climate zone

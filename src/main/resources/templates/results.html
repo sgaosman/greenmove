@@ -149,6 +149,7 @@
 
                     <div class="plants-grid" id="plants-grid">
                         <div class="plant-card" th:each="plant : ${plants}"
+                             th:data-plant-id="${plant.id}"
                              th:data-name="${plant.commonName}"
                              th:data-score="${plant.suitabilityScore}"
                              th:data-type="${plant.plantType}"
@@ -193,6 +194,10 @@
     </div>
 
     <div id="plant-tooltip" class="plant-tooltip"></div>
+
+    <div id="shopping-panel" class="shopping-panel">
+        <div id="shopping-panel-content"></div>
+    </div>
 
     <script th:inline="javascript">
         (function() {
@@ -476,6 +481,167 @@
                 tooltip.style.left = x + 'px';
                 tooltip.style.top = y + 'px';
             });
+
+            /* Shopping panel */
+            var currentPanelPlantId = null;
+
+            grid.addEventListener('click', function(e) {
+                var card = e.target.closest('.plant-card');
+                if (!card) return;
+                var plantId = card.dataset.plantId;
+                if (!plantId || plantId === '-1') return;
+                tooltip.style.display = 'none';
+                openShoppingPanel(plantId);
+            });
+
+            function openShoppingPanel(plantId) {
+                var panel = document.getElementById('shopping-panel');
+                var content = document.getElementById('shopping-panel-content');
+                currentPanelPlantId = plantId;
+
+                panel.classList.add('open');
+                document.body.classList.add('panel-open');
+                content.innerHTML = '<div class="panel-loading"><div class="spinner"></div><p>Loading shopping results...</p></div>';
+
+                fetch('/api/plant/' + plantId + '/shop')
+                    .then(function(res) {
+                        if (!res.ok) throw new Error('Failed to load shopping data');
+                        return res.json();
+                    })
+                    .then(function(data) {
+                        if (currentPanelPlantId === plantId) {
+                            renderShoppingPanel(data, content);
+                        }
+                    })
+                    .catch(function(err) {
+                        if (currentPanelPlantId === plantId) {
+                            content.innerHTML = '<button class="panel-close-btn" onclick="closeShoppingPanel()">&times;</button>'
+                                + '<p class="panel-error">Could not load shopping results. ' + err.message + '</p>';
+                        }
+                    });
+            }
+
+            window.closeShoppingPanel = function() {
+                document.getElementById('shopping-panel').classList.remove('open');
+                document.body.classList.remove('panel-open');
+                currentPanelPlantId = null;
+            };
+
+            document.addEventListener('click', function(e) {
+                var panel = document.getElementById('shopping-panel');
+                if (!panel.classList.contains('open')) return;
+                if (panel.contains(e.target)) return;
+                if (e.target.closest('.plant-card')) return;
+                closeShoppingPanel();
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') closeShoppingPanel();
+            });
+
+            function renderShoppingPanel(data, container) {
+                var html = '<button class="panel-close-btn" onclick="closeShoppingPanel()">&times;</button>';
+                html += '<h2 class="panel-plant-name">' + esc(data.plantCommonName) + '</h2>';
+                if (data.plantLatinName) html += '<p class="panel-latin">' + esc(data.plantLatinName) + '</p>';
+                if (data.plantType) html += '<span class="panel-tag">' + esc(data.plantType) + '</span>';
+                if (data.plantDescription) html += '<p class="panel-desc">' + esc(data.plantDescription) + '</p>';
+
+                if (data.apiAvailable) {
+                    var hasGoogle = data.googleCategories && data.googleCategories.some(function(c) { return c.results.length > 0; });
+                    var hasEbay = data.ebayResults && data.ebayResults.some(function(c) { return c.results.length > 0; });
+
+                    if (hasGoogle || hasEbay) {
+                        html += '<div class="source-tabs">';
+                        if (hasGoogle) html += '<button class="stab active" data-tab="google">Google Shopping</button>';
+                        if (hasEbay) html += '<button class="stab' + (hasGoogle ? '' : ' active') + '" data-tab="ebay">eBay</button>';
+                        html += '</div>';
+                    }
+
+                    if (hasGoogle) {
+                        html += '<div class="tab-content" id="tab-google">';
+                        data.googleCategories.forEach(function(cat) {
+                            if (cat.results.length === 0) return;
+                            html += '<h3 class="panel-section">' + esc(cat.label) + '</h3>';
+                            cat.results.forEach(function(item) { html += renderShoppingItem(item); });
+                        });
+                        html += '</div>';
+                    }
+
+                    if (hasEbay) {
+                        html += '<div class="tab-content" id="tab-ebay" style="' + (hasGoogle ? 'display:none' : '') + '">';
+                        data.ebayResults.forEach(function(cat) {
+                            if (cat.results.length === 0) return;
+                            html += '<h3 class="panel-section">' + esc(cat.label) + '</h3>';
+                            cat.results.forEach(function(item) { html += renderShoppingItem(item); });
+                        });
+                        html += '</div>';
+                    }
+
+                    if (data.accessories && data.accessories.some(function(c) { return c.results.length > 0; })) {
+                        html += '<h3 class="panel-section panel-section-accent">You might also need</h3>';
+                        data.accessories.forEach(function(cat) {
+                            if (cat.results.length === 0) return;
+                            html += '<h4 class="panel-subsection">' + esc(cat.label) + '</h4>';
+                            cat.results.forEach(function(item) { html += renderShoppingItem(item); });
+                        });
+                    }
+                } else {
+                    html += '<p class="panel-api-note">Product search is currently unavailable. Browse these specialist retailers instead.</p>';
+                }
+
+                if (data.retailerLinks && data.retailerLinks.length > 0) {
+                    html += '<h3 class="panel-section">Shop at specialist retailers</h3>';
+                    html += '<div class="retailer-links">';
+                    data.retailerLinks.forEach(function(r) {
+                        html += '<a href="' + esc(r.searchUrl) + '" target="_blank" rel="noopener" class="retailer-link-card">'
+                            + '<div class="retailer-name">' + esc(r.name) + '</div>'
+                            + '<div class="retailer-domain">' + esc(r.domain) + '</div>'
+                            + '<div class="retailer-desc">' + esc(r.description) + '</div>'
+                            + '</a>';
+                    });
+                    html += '</div>';
+                }
+
+                container.innerHTML = html;
+
+                container.querySelectorAll('.stab').forEach(function(tab) {
+                    tab.addEventListener('click', function() {
+                        container.querySelectorAll('.stab').forEach(function(t) { t.classList.remove('active'); });
+                        container.querySelectorAll('.tab-content').forEach(function(tc) { tc.style.display = 'none'; });
+                        tab.classList.add('active');
+                        var target = document.getElementById('tab-' + tab.dataset.tab);
+                        if (target) target.style.display = 'block';
+                    });
+                });
+            }
+
+            function renderShoppingItem(item) {
+                var stars = item.rating ? '★ ' + item.rating : '';
+                var reviewsText = item.reviews ? '(' + item.reviews + ' reviews)' : '';
+                var oldPrice = item.oldPrice ? '<span class="shop-old-price">' + esc(item.oldPrice) + '</span>' : '';
+                var delivery = item.delivery ? '<div class="shop-delivery">' + esc(item.delivery) + '</div>' : '';
+                var badge = item.badge ? '<span class="shop-badge">' + esc(item.badge) + '</span>' : '';
+                var thumb = item.thumbnail ? '<img src="' + esc(item.thumbnail) + '" alt="" class="shop-thumb">' : '';
+                var source = item.source ? '<div class="shop-source">' + esc(item.source) + '</div>' : '';
+
+                return '<a href="' + esc(item.link) + '" target="_blank" rel="noopener" class="shopping-item">'
+                    + thumb
+                    + '<div class="shopping-item-info">'
+                    + '<div class="shop-title">' + esc(item.title) + '</div>'
+                    + source
+                    + (stars ? '<div class="shop-rating">' + stars + ' ' + reviewsText + '</div>' : '')
+                    + '<div class="shop-price">' + esc(item.price || 'Price not available') + ' ' + oldPrice + '</div>'
+                    + delivery
+                    + badge
+                    + '</div></a>';
+            }
+
+            function esc(str) {
+                if (!str) return '';
+                var d = document.createElement('div');
+                d.appendChild(document.createTextNode(str));
+                return d.innerHTML;
+            }
         })();
     </script>
 </body>

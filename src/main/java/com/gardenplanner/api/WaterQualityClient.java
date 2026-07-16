@@ -2,6 +2,8 @@ package com.gardenplanner.api;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -14,6 +16,7 @@ import java.net.http.HttpResponse;
 @Component
 public class WaterQualityClient {
 
+    private static final Logger log = LoggerFactory.getLogger(WaterQualityClient.class);
     private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
 
     @Value("${mytapwater.api-key:}")
@@ -38,7 +41,8 @@ public class WaterQualityClient {
         HttpResponse<String> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
 
         if (response.statusCode() == 429 || response.statusCode() == 402) {
-            throw new IOException("The MyTapWater API credits have reached their limit. Please speak to the owner of this project to get this sorted.");
+            log.warn("MyTapWater API credits have reached their limit (HTTP {}). Falling back to postcode-based estimation. Water hardness data may be less accurate.", response.statusCode());
+            return estimateHardness(postcode);
         }
 
         if (response.statusCode() != 200) {
