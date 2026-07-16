@@ -119,3 +119,23 @@ The app starts at [http://localhost:8080](http://localhost:8080). The SQLite dat
 </div>
 
 Buy, rent, new homes, and student property pages from Rightmove. Commercial and overseas listings are not supported.
+
+<div align="center">
+
+---
+
+## :crystal_ball: Upcoming features :crystal_ball:
+
+</div>
+
+- **Purchase Sources** -- links to buy recommended plants from garden centres and online retailers
+- **Saved Garden Lists** -- save and manage custom lists of plants for your dream garden
+- **Saved Properties Lists** -- bookmark properties and compare their garden potential side by side
+- **Seasonal Planting Calendar** -- show when to plant, prune, and harvest each recommended plant based on the property's climate zone
+- **Garden Layout Planner** -- drag-and-drop visual tool to arrange plants in a bed, with spacing and sunlight guidance
+- **Maintenance Difficulty Rating** -- score each plant on how much upkeep it needs so users can filter for low-maintenance gardens
+- **Companion Planting Suggestions** -- flag which recommended plants grow well together and which to keep apart
+- **Cost Estimator** -- rough budget for setting up the garden based on the selected plants
+- **Share / Export** -- generate a shareable garden plan as a PDF or image, or share a link with the full plant list
+- **Neighbourhood Insights** -- what other Greenmove users in the same postcode area are growing (anonymised and aggregated)
+- **Climate Change Projections** -- how the site conditions might shift over 10-20 years and which plants will stay viable
