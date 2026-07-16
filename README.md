@@ -157,3 +157,12 @@ Buy, rent, new homes, and student property pages from Rightmove. Commercial and 
 - **Neighbourhood Insights** -- what other Greenmove users in the same postcode area are growing (anonymised and aggregated)
 - **Climate Change Projections** -- how the site conditions might shift over 10-20 years and which plants will stay viable
 - **Persistent Database** -- migrate shopping cache from SQLite to PostgreSQL so cached results survive redeployments
+- **HTTP Timeouts** -- add connect and read timeouts to all external API calls (soil, weather, air quality, water, Rightmove) to prevent hung requests from blocking Tomcat threads indefinitely
+- **Site Profile Caching** -- persist built site profiles to the `site_profiles` table so repeat lookups for the same postcode skip redundant API calls
+- **Connection Pooling** -- replace raw `DriverManager.getConnection()` with HikariCP to reuse database connections and bound concurrency
+- **Monitoring and Health Checks** -- add Spring Boot Actuator for `/actuator/health` and `/actuator/metrics`, plus external uptime monitoring
+- **Test Suite** -- add unit tests for the suitability scoring algorithm, Rightmove page parser (both flat and packed JSON formats), soil description parsing, and pet toxicity filtering
+- **N+1 Toxicity Query** -- batch the per-plant toxicity lookups into a single query instead of issuing one query per plant during recommendation
+- **Shopping Quota Management** -- track SerpApi usage against the monthly limit and surface quota status to the user rather than silently degrading
+- **Rightmove Format Change Detection** -- automated smoke tests against known property IDs to alert when the PAGE_MODEL format changes
+- **Graceful Degradation Indicators** -- surface to the user when environmental data has fallen back to defaults so they know which parts of their site profile are estimated rather than measured
