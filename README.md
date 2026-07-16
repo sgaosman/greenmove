@@ -154,3 +154,4 @@ Buy, rent, new homes, and student property pages from Rightmove. Commercial and 
 - **Share / Export** -- generate a shareable garden plan as a PDF or image, or share a link with the full plant list
 - **Neighbourhood Insights** -- what other Greenmove users in the same postcode area are growing (anonymised and aggregated)
 - **Climate Change Projections** -- how the site conditions might shift over 10-20 years and which plants will stay viable
+- **Persistent Database** -- migrate shopping cache from SQLite to PostgreSQL so cached results survive redeployments

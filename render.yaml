@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: greenmove
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    envVars:
+      - key: MYTAPWATER_API_KEY
+        sync: false
+      - key: SERPAPI_API_KEY
+        sync: false
