@@ -142,7 +142,7 @@ public class GardenController {
         p.setLatinName("Karesansui");
         p.setPlantType("Garden");
         p.setDescription("A perfectly raked stone garden. No plants, no maintenance, no problems. Just rocks, gravel, and inner peace. Your dog will love it.");
-        p.setImageUrl("https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Kyoto-Ryoan-Ji_MG_4512.jpg/330px-Kyoto-Ryoan-Ji_MG_4512.jpg");
+        p.setImageUrl("https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Kare-sansui_zen_garden%2C_Ry%C5%8Dan-ji%2C_Kyoto_20190416_1.jpg/330px-Kare-sansui_zen_garden%2C_Ry%C5%8Dan-ji%2C_Kyoto_20190416_1.jpg");
         p.setIndoor(false);
         p.setPurpose("aesthetic");
         p.setSuitabilityScore(100);
