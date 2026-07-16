@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Garden Planner</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <header class="hero">
+            <h1>Garden Planner</h1>
+            <p class="subtitle">Paste a Rightmove property URL to discover what you could grow there.</p>
+            <p class="description">We analyse the soil, weather, air quality, and water at any UK property to recommend plants that will thrive.</p>
+        </header>
+
+        <main>
+            <form action="/search" method="post" class="search-form" id="search-form">
+                <label for="rightmoveUrl">Rightmove property URL</label>
+                <div class="input-group">
+                    <input type="url" id="rightmoveUrl" name="rightmoveUrl"
+                           placeholder="https://www.rightmove.co.uk/properties/123456789"
+                           required>
+                    <button type="submit" id="search-btn">Analyse</button>
+                </div>
+                <p class="hint">Supports buy, rent, new homes, and student property pages. No, we don't support Commercial or Overseas pages.</p>
+
+                <div class="pet-selector">
+                    <label>If you have or intend to have pets, please select them here <span class="tooltip-trigger" data-tooltip="Toxic plants will be filtered out">&#9432;</span></label>
+                    <div class="pet-dropdown" id="pet-dropdown">
+                        <div class="pet-dropdown-trigger" id="pet-trigger">
+                            <span class="pet-placeholder" id="pet-placeholder">Select pets...</span>
+                            <div class="pet-chips" id="pet-chips"></div>
+                            <span class="pet-arrow">&#9662;</span>
+                        </div>
+                        <div class="pet-dropdown-menu" id="pet-menu">
+                            <div class="pet-option" th:each="entry : ${petOptions}"
+                                 th:data-value="${entry.key}"
+                                 th:text="${entry.value}">Dog</div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <section class="features">
+                <div class="feature">
+                    <h3>Soil Analysis</h3>
+                    <p>Soil type, drainage, and pH from the national soil map.</p>
+                </div>
+                <div class="feature">
+                    <h3>Climate Data</h3>
+                    <p>Rainfall, sunshine hours, and frost dates from historical records.</p>
+                </div>
+                <div class="feature">
+                    <h3>Air &amp; Water</h3>
+                    <p>Air quality index and water hardness at your postcode.</p>
+                </div>
+                <div class="feature">
+                    <h3>Plant Matching</h3>
+                    <p>Plants recommended based on all environmental factors combined.</p>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>Data from LandIS Soilscapes, Open-Meteo, and DEFRA. Plant guidance based on RHS hardiness ratings.</p>
+            <p>This application is a personal project and is not officially affiliated with or a part of Rightmove PLC.</p>
+        </footer>
+    </div>
+    <script>
+        (function() {
+            var dropdown = document.getElementById('pet-dropdown');
+            var trigger = document.getElementById('pet-trigger');
+            var menu = document.getElementById('pet-menu');
+            var chipsEl = document.getElementById('pet-chips');
+            var placeholder = document.getElementById('pet-placeholder');
+            var form = document.getElementById('search-form');
+            var selected = new Set();
+
+            trigger.addEventListener('click', function(e) {
+                if (e.target.classList.contains('chip-remove')) return;
+                dropdown.classList.toggle('open');
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!dropdown.contains(e.target)) {
+                    dropdown.classList.remove('open');
+                }
+            });
+
+            menu.querySelectorAll('.pet-option').forEach(function(opt) {
+                opt.addEventListener('click', function() {
+                    var val = opt.dataset.value;
+                    if (selected.has(val)) {
+                        selected.delete(val);
+                        opt.classList.remove('selected');
+                    } else {
+                        selected.add(val);
+                        opt.classList.add('selected');
+                    }
+                    renderChips();
+                });
+            });
+
+            function renderChips() {
+                chipsEl.innerHTML = '';
+                form.querySelectorAll('input[name="pets"]').forEach(function(i) { i.remove(); });
+
+                selected.forEach(function(val) {
+                    var opt = menu.querySelector('[data-value="' + val + '"]');
+                    var chip = document.createElement('span');
+                    chip.className = 'pet-chip';
+                    chip.innerHTML = opt.textContent + '<span class="chip-remove" data-val="' + val + '">&times;</span>';
+                    chipsEl.appendChild(chip);
+
+                    var input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'pets';
+                    input.value = val;
+                    form.appendChild(input);
+                });
+
+                placeholder.style.display = selected.size > 0 ? 'none' : '';
+            }
+
+            chipsEl.addEventListener('click', function(e) {
+                if (e.target.classList.contains('chip-remove')) {
+                    var val = e.target.dataset.val;
+                    selected.delete(val);
+                    menu.querySelector('[data-value="' + val + '"]').classList.remove('selected');
+                    renderChips();
+                    e.stopPropagation();
+                }
+            });
+
+            form.addEventListener('submit', function(e) {
+                var urlInput = document.getElementById('rightmoveUrl');
+                var match = urlInput.value.match(/\/properties\/(\d+)/);
+                if (match) {
+                    e.preventDefault();
+                    var propertyId = match[1];
+                    var url = '/property/' + propertyId;
+                    if (selected.size > 0) {
+                        url += '?pets=' + Array.from(selected).map(function(p) { return encodeURIComponent(p); }).join(',');
+                    }
+                    window.location.href = url;
+                }
+            });
+        })();
+    </script>
+</body>
+</html>

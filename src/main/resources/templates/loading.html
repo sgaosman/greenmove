@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysing Property — Garden Planner</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <div class="loading-screen">
+            <div class="spinner"></div>
+            <h2>Analysing property&hellip;</h2>
+            <p class="loading-detail">Fetching soil, climate, air quality, and water data</p>
+        </div>
+    </div>
+    <script th:inline="javascript">
+        (function() {
+            var propertyId = /*[[${propertyId}]]*/ '';
+            var pets = /*[[${selectedPets}]]*/ [];
+            var queryString = '';
+            if (pets.length > 0) {
+                queryString = '?pets=' + pets.map(function(p) { return encodeURIComponent(p); }).join(',');
+            }
+            fetch('/property/' + propertyId + '/results' + queryString)
+                .then(function(response) {
+                    if (!response.ok) throw new Error('Failed to load property data');
+                    return response.text();
+                })
+                .then(function(html) {
+                    document.open();
+                    document.write(html);
+                    document.close();
+                })
+                .catch(function(err) {
+                    var screen = document.querySelector('.loading-screen');
+                    screen.innerHTML = '<h2>Something went wrong</h2>'
+                        + '<p class="loading-detail">' + err.message + '</p>'
+                        + '<a href="/" class="button" style="margin-top:1rem">Try again</a>';
+                });
+        })();
+    </script>
+</body>
+</html>

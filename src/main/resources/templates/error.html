@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error — Garden Planner</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="/" class="back-link">&larr; Back to search</a>
+            <h1>Something went wrong</h1>
+        </header>
+
+        <main>
+            <div class="error-card">
+                <p class="error-message" th:text="${errorMessage}">An error occurred</p>
+
+                <div th:if="${propertyId}" class="error-detail">
+                    <p>Property ID: <code th:text="${propertyId}">123456789</code></p>
+                </div>
+
+                <h3>Common issues</h3>
+                <ul>
+                    <li>Make sure the URL is a valid Rightmove property page (e.g. <code>https://www.rightmove.co.uk/properties/170345402</code>)</li>
+                    <li>The property may have been removed from Rightmove</li>
+                    <li>Soil data is only available for properties in England and Wales</li>
+                    <li>External APIs may be temporarily unavailable</li>
+                </ul>
+
+                <a href="/" class="button">Try again</a>
+            </div>
+        </main>
+
+        <footer>
+            <p>Data from LandIS Soilscapes, Open-Meteo, and DEFRA. Plant guidance based on RHS hardiness ratings.</p>
+        </footer>
+    </div>
+</body>
+</html>

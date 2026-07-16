@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${property.displayAddress} + ' — Garden Planner'">Results — Garden Planner</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container container-wide">
+        <header>
+            <a href="/" class="back-link">&larr; Back to search</a>
+            <form action="/search" method="post" class="results-search-form" id="results-search-form">
+                <div class="results-search-row">
+                    <input type="url" name="rightmoveUrl" placeholder="Paste another Rightmove URL..." required>
+                    <button type="submit">Analyse</button>
+                </div>
+                <div class="pet-selector pet-selector-compact">
+                    <label>Pets <span class="tooltip-trigger" data-tooltip="Toxic plants will be filtered out">&#9432;</span></label>
+                    <div class="pet-dropdown" id="pet-dropdown">
+                        <div class="pet-dropdown-trigger" id="pet-trigger">
+                            <span class="pet-placeholder" id="pet-placeholder">Select pets...</span>
+                            <div class="pet-chips" id="pet-chips"></div>
+                            <span class="pet-arrow">&#9662;</span>
+                        </div>
+                        <div class="pet-dropdown-menu" id="pet-menu">
+                            <div class="pet-option" th:each="entry : ${petOptions}"
+                                 th:data-value="${entry.key}"
+                                 th:classappend="${#lists.contains(selectedPets, entry.key)} ? 'selected'"
+                                 th:text="${entry.value}">Dog</div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <div class="property-header">
+                <img th:if="${property.imageUrl != null}" th:src="${property.imageUrl}" alt="Property photo" class="property-image">
+                <div class="property-header-text">
+                    <h1 th:text="${property.displayAddress}">Address</h1>
+                    <div class="property-meta">
+                        <span class="badge" th:text="${property.propertyType}">Terraced</span>
+                        <span class="badge" th:if="${property.bedrooms > 0}"
+                              th:text="${property.bedrooms} + ' bed'">3 bed</span>
+                        <span class="badge" th:classappend="${property.hasGarden} ? 'badge-green' : 'badge-grey'"
+                              th:text="${property.hasGarden} ? 'Garden' : 'No garden'">Garden</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <section class="site-conditions">
+                <h2>Site Conditions</h2>
+                <div class="conditions-grid">
+                    <div class="condition-card">
+                        <h3>Soil</h3>
+                        <dl>
+                            <dt>Type</dt>
+                            <dd th:text="${#strings.capitalize(profile.soilType)}">Loam</dd>
+                            <dt>Drainage</dt>
+                            <dd th:text="${#strings.capitalize(profile.soilDrainage)}">Freely draining</dd>
+                            <dt>pH</dt>
+                            <dd th:text="${#strings.capitalize(profile.soilPhRange)}">Neutral</dd>
+                        </dl>
+                    </div>
+
+                    <div class="condition-card">
+                        <h3>Climate</h3>
+                        <dl>
+                            <dt>Hardiness zone</dt>
+                            <dd th:text="${profile.rhsHardinessZone}">H4</dd>
+                            <dt>Annual rainfall</dt>
+                            <dd th:text="${#numbers.formatDecimal(profile.avgAnnualRainfall, 0, 0)} + ' mm'">650 mm</dd>
+                            <dt>Sunshine</dt>
+                            <dd th:text="${#numbers.formatDecimal(profile.avgSunshineHours, 0, 0)} + ' hrs/year'">1500 hrs/year</dd>
+                        </dl>
+                    </div>
+
+                    <div class="condition-card">
+                        <h3>Air Quality</h3>
+                        <dl>
+                            <dt>European AQI</dt>
+                            <dd th:text="${profile.airQualityIndex}">25</dd>
+                            <dt>Rating</dt>
+                            <dd th:text="${profile.airQualityDescription}">Good</dd>
+                        </dl>
+                    </div>
+
+                    <div class="condition-card">
+                        <h3>Water</h3>
+                        <dl>
+                            <dt>Hardness</dt>
+                            <dd th:text="${#numbers.formatDecimal(profile.waterHardnessPpm, 0, 0)} + ' ppm CaCO&#8323;'">280 ppm</dd>
+                            <dt>Classification</dt>
+                            <dd th:text="${profile.waterHardnessPpm > 300 ? 'Very hard' : (profile.waterHardnessPpm > 200 ? 'Hard' : (profile.waterHardnessPpm > 100 ? 'Moderate' : 'Soft'))}">Hard</dd>
+                        </dl>
+                    </div>
+                </div>
+            </section>
+
+            <section class="plants-section">
+                <h2 th:text="${property.hasGarden} ? 'Recommended Plants for Your Garden' : 'Recommended Indoor Plants'">
+                    Recommended Plants
+                </h2>
+                <p class="plant-count"><span id="visible-count" th:text="${plantCount}">10</span> plants matched your site conditions</p>
+
+                <div th:if="${!selectedPets.isEmpty()}" class="pet-info">
+                    <span class="pet-info-icon">&#128062;</span>
+                    <span th:text="${petFilterMessage}">Plants toxic to your Dog(s) have been filtered out. All plants shown are safe for your pets.</span>
+                </div>
+
+                <div th:if="${#lists.isEmpty(plants)}" class="no-results">
+                    <p>No plants in our database matched your site conditions. Try a different property or check back as we add more plants.</p>
+                </div>
+
+                <div th:unless="${#lists.isEmpty(plants)}">
+                    <div class="controls-bar">
+                        <div class="controls-left">
+                            <div class="control-group">
+                                <label>Filter by plant type</label>
+                                <div class="filter-chips" id="type-chips">
+                                    <button class="filter-chip active" data-type="all">All</button>
+                                    <button class="filter-chip" th:each="type : ${plantTypes}"
+                                            th:data-type="${type}"
+                                            th:text="${#strings.capitalize(type)}">Perennial</button>
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <label>Filter by purpose</label>
+                                <div class="filter-chips" id="purpose-chips">
+                                    <button class="filter-chip active" data-purpose="all">All</button>
+                                    <button class="filter-chip" th:each="purpose : ${purposeTypes}"
+                                            th:data-purpose="${purpose}"
+                                            th:text="${#strings.capitalize(purpose)}">Aesthetic</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="controls-right">
+                            <div class="control-group">
+                                <label for="sort-select">Sort by</label>
+                                <select id="sort-select">
+                                    <option value="suitability-desc" selected>Best match first</option>
+                                    <option value="suitability-asc">Least suitable first</option>
+                                    <option value="name-asc">Name A &rarr; Z</option>
+                                    <option value="name-desc">Name Z &rarr; A</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="plants-grid" id="plants-grid">
+                        <div class="plant-card" th:each="plant : ${plants}"
+                             th:data-name="${plant.commonName}"
+                             th:data-score="${plant.suitabilityScore}"
+                             th:data-type="${plant.plantType}"
+                             th:data-purpose="${plant.purpose}"
+                             th:data-indoor="${plant.indoor}"
+                             th:data-s-hardiness="${plant.hardinessScore}"
+                             th:data-s-soil="${plant.soilScore}"
+                             th:data-s-ph="${plant.phScore}"
+                             th:data-s-drainage="${plant.drainageScore}"
+                             th:data-s-pollution="${plant.pollutionScore}"
+                             th:data-s-water="${plant.waterScore}"
+                             th:data-r-hardiness="${plant.reqHardiness}"
+                             th:data-r-soil="${plant.reqSoil}"
+                             th:data-r-ph="${plant.reqPh}"
+                             th:data-r-drainage="${plant.reqDrainage}"
+                             th:data-r-pollution="${plant.reqPollutionTolerant}"
+                             th:data-r-water="${plant.reqHardWaterTolerant}">
+                            <img th:if="${plant.imageUrl != null}" th:src="${plant.imageUrl}" alt="" class="plant-image" loading="lazy">
+                            <div class="plant-info">
+                                <div class="plant-header">
+                                    <h3 th:text="${plant.commonName}">Lavender</h3>
+                                    <span class="suitability-badge"
+                                          th:classappend="${plant.suitabilityScore >= 85 ? 'suitability-perfect' : (plant.suitabilityScore >= 70 ? 'suitability-great' : (plant.suitabilityScore >= 55 ? 'suitability-good' : 'suitability-try'))}"
+                                          th:text="${plant.suitabilityLabel}">Perfect Match</span>
+                                </div>
+                                <p class="latin-name" th:text="${plant.latinName}">Lavandula angustifolia</p>
+                                <div class="plant-tags">
+                                    <span class="plant-type-badge" th:text="${plant.plantType}">Perennial</span>
+                                    <span class="score-text" th:text="${plant.suitabilityScore} + '% match'">85% match</span>
+                                </div>
+                                <p class="plant-description" th:text="${plant.description}">Description</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>Data from LandIS Soilscapes, Open-Meteo, and DEFRA. Plant guidance based on RHS hardiness ratings.</p>
+        </footer>
+    </div>
+
+    <div id="plant-tooltip" class="plant-tooltip"></div>
+
+    <script th:inline="javascript">
+        (function() {
+            /* Pet selector */
+            var dropdown = document.getElementById('pet-dropdown');
+            var trigger = document.getElementById('pet-trigger');
+            var menu = document.getElementById('pet-menu');
+            var chipsEl = document.getElementById('pet-chips');
+            var placeholder = document.getElementById('pet-placeholder');
+            var searchForm = document.getElementById('results-search-form');
+            var selected = new Set();
+
+            var initialPets = /*[[${selectedPets}]]*/ [];
+            initialPets.forEach(function(p) { selected.add(p); });
+
+            trigger.addEventListener('click', function(e) {
+                if (e.target.classList.contains('chip-remove')) return;
+                dropdown.classList.toggle('open');
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!dropdown.contains(e.target)) {
+                    dropdown.classList.remove('open');
+                }
+            });
+
+            menu.querySelectorAll('.pet-option').forEach(function(opt) {
+                opt.addEventListener('click', function() {
+                    var val = opt.dataset.value;
+                    if (selected.has(val)) {
+                        selected.delete(val);
+                        opt.classList.remove('selected');
+                    } else {
+                        selected.add(val);
+                        opt.classList.add('selected');
+                    }
+                    renderChips();
+                });
+            });
+
+            function renderChips() {
+                chipsEl.innerHTML = '';
+                searchForm.querySelectorAll('input[name="pets"]').forEach(function(i) { i.remove(); });
+
+                selected.forEach(function(val) {
+                    var opt = menu.querySelector('[data-value="' + val + '"]');
+                    var chip = document.createElement('span');
+                    chip.className = 'pet-chip';
+                    chip.innerHTML = opt.textContent + '<span class="chip-remove" data-val="' + val + '">&times;</span>';
+                    chipsEl.appendChild(chip);
+
+                    var input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'pets';
+                    input.value = val;
+                    searchForm.appendChild(input);
+                });
+
+                placeholder.style.display = selected.size > 0 ? 'none' : '';
+            }
+
+            chipsEl.addEventListener('click', function(e) {
+                if (e.target.classList.contains('chip-remove')) {
+                    var val = e.target.dataset.val;
+                    selected.delete(val);
+                    menu.querySelector('[data-value="' + val + '"]').classList.remove('selected');
+                    renderChips();
+                    e.stopPropagation();
+                }
+            });
+
+            renderChips();
+
+            if (searchForm) {
+                searchForm.addEventListener('submit', function(e) {
+                    var input = searchForm.querySelector('input[name="rightmoveUrl"]');
+                    var match = input.value.match(/\/properties\/(\d+)/);
+                    if (match) {
+                        e.preventDefault();
+                        var url = '/property/' + match[1];
+                        if (selected.size > 0) {
+                            url += '?pets=' + Array.from(selected).map(function(p) { return encodeURIComponent(p); }).join(',');
+                        }
+                        window.location.href = url;
+                    }
+                });
+            }
+
+            /* Filter chip tooltips */
+            var typeTooltips = {
+                all: 'Show all plant types',
+                perennial: 'Plants that live for more than two years and flower repeatedly',
+                shrub: 'Woody plants smaller than trees, often with multiple stems',
+                tree: 'Large woody plants, typically with a single trunk',
+                climber: 'Plants that grow upwards by attaching to walls, fences, or other plants',
+                bulb: 'Plants that grow from an underground bulb, corm, or tuber',
+                annual: 'Plants that complete their entire lifecycle in a single growing season',
+                indoor: 'Houseplants suited to indoor growing conditions'
+            };
+            var purposeTooltips = {
+                all: 'Show all purposes',
+                aesthetic: 'Grown primarily for visual appeal in borders, beds, and displays',
+                aromatic: 'Fragrant plants grown for their pleasant scent',
+                edible: 'Food plants including fruit, vegetables, herbs, and seasonings',
+                functional: 'Practical plants for hedging, wildlife habitat, or screening'
+            };
+
+            document.querySelectorAll('#type-chips .filter-chip').forEach(function(chip) {
+                var key = (chip.dataset.type || '').toLowerCase();
+                if (typeTooltips[key]) chip.title = typeTooltips[key];
+            });
+            document.querySelectorAll('#purpose-chips .filter-chip').forEach(function(chip) {
+                var key = (chip.dataset.purpose || '').toLowerCase();
+                if (purposeTooltips[key]) chip.title = purposeTooltips[key];
+            });
+
+            var grid = document.getElementById('plants-grid');
+            if (!grid) return;
+
+            var sortSelect = document.getElementById('sort-select');
+            var typeChips = document.querySelectorAll('#type-chips .filter-chip');
+            var purposeChips = document.querySelectorAll('#purpose-chips .filter-chip');
+            var countEl = document.getElementById('visible-count');
+            var activeType = 'all';
+            var activePurpose = 'all';
+
+            function getCards() {
+                return Array.from(grid.querySelectorAll('.plant-card'));
+            }
+
+            function sortCards() {
+                var cards = getCards();
+                var sortValue = sortSelect.value;
+
+                cards.sort(function(a, b) {
+                    if (sortValue === 'suitability-desc') {
+                        return parseInt(b.dataset.score) - parseInt(a.dataset.score);
+                    } else if (sortValue === 'suitability-asc') {
+                        return parseInt(a.dataset.score) - parseInt(b.dataset.score);
+                    } else if (sortValue === 'name-asc') {
+                        return a.dataset.name.localeCompare(b.dataset.name);
+                    } else {
+                        return b.dataset.name.localeCompare(a.dataset.name);
+                    }
+                });
+
+                cards.forEach(function(card) {
+                    grid.appendChild(card);
+                });
+            }
+
+            function filterCards() {
+                var cards = getCards();
+                var visibleCount = 0;
+
+                cards.forEach(function(card) {
+                    var matchesType = (activeType === 'all' || card.dataset.type === activeType);
+                    var matchesPurpose = (activePurpose === 'all' || card.dataset.purpose === activePurpose);
+                    var show = matchesType && matchesPurpose;
+                    card.style.display = show ? '' : 'none';
+                    if (show) visibleCount++;
+                });
+
+                countEl.textContent = visibleCount;
+            }
+
+            sortSelect.addEventListener('change', function() {
+                sortCards();
+            });
+
+            function setupChipGroup(chips, getActive, setActive, attr) {
+                chips.forEach(function(chip) {
+                    chip.addEventListener('click', function() {
+                        var val = chip.dataset[attr];
+                        if (val !== 'all' && val === getActive()) {
+                            setActive('all');
+                            chips.forEach(function(c) { c.classList.remove('active'); });
+                            chips[0].classList.add('active');
+                        } else {
+                            setActive(val);
+                            chips.forEach(function(c) { c.classList.remove('active'); });
+                            chip.classList.add('active');
+                        }
+                        filterCards();
+                    });
+                });
+            }
+
+            setupChipGroup(typeChips,
+                function() { return activeType; },
+                function(v) { activeType = v; },
+                'type');
+
+            setupChipGroup(purposeChips,
+                function() { return activePurpose; },
+                function(v) { activePurpose = v; },
+                'purpose');
+
+            /* Floating tooltip on plant cards */
+            var tooltip = document.getElementById('plant-tooltip');
+
+            function scoreLabel(val) {
+                if (val >= 0.8) return 'match';
+                if (val >= 0.5) return 'partial';
+                return 'mismatch';
+            }
+
+            function scoreIcon(val) {
+                if (val >= 0.8) return '✓';
+                if (val >= 0.5) return '~';
+                return '✗';
+            }
+
+            function capitalize(str) {
+                if (!str) return '';
+                return str.split(',').map(function(s) {
+                    s = s.trim();
+                    return s.charAt(0).toUpperCase() + s.slice(1);
+                }).join(', ');
+            }
+
+            function buildTooltipHtml(card) {
+                var isIndoor = card.dataset.indoor === 'true';
+                var dims;
+                if (isIndoor) {
+                    dims = [
+                        { name: 'Pollution tolerant', req: card.dataset.rPollution === 'true' ? 'Yes' : 'No', score: parseFloat(card.dataset.sPollution) },
+                        { name: 'Hard water tolerant', req: card.dataset.rWater === 'true' ? 'Yes' : 'No', score: parseFloat(card.dataset.sWater) }
+                    ];
+                } else {
+                    dims = [
+                        { name: 'Min. hardiness', req: card.dataset.rHardiness || 'Any', score: parseFloat(card.dataset.sHardiness) },
+                        { name: 'Soil', req: capitalize(card.dataset.rSoil) || 'Any', score: parseFloat(card.dataset.sSoil) },
+                        { name: 'pH', req: capitalize(card.dataset.rPh) || 'Any', score: parseFloat(card.dataset.sPh) },
+                        { name: 'Drainage', req: capitalize(card.dataset.rDrainage) || 'Any', score: parseFloat(card.dataset.sDrainage) },
+                        { name: 'Pollution tolerant', req: card.dataset.rPollution === 'true' ? 'Yes' : 'No', score: parseFloat(card.dataset.sPollution) },
+                        { name: 'Hard water tolerant', req: card.dataset.rWater === 'true' ? 'Yes' : 'No', score: parseFloat(card.dataset.sWater) }
+                    ];
+                }
+
+                var html = '<div class="tt-title">Plant Requirements</div>';
+                dims.forEach(function(d) {
+                    var cls = scoreLabel(d.score);
+                    var icon = scoreIcon(d.score);
+                    html += '<div class="tt-row tt-' + cls + '">'
+                         + '<span class="tt-icon">' + icon + '</span>'
+                         + '<span class="tt-dim">' + d.name + '</span>'
+                         + '<span class="tt-req">' + d.req + '</span>'
+                         + '</div>';
+                });
+                return html;
+            }
+
+            grid.addEventListener('mouseover', function(e) {
+                var card = e.target.closest('.plant-card');
+                if (!card) return;
+                tooltip.innerHTML = buildTooltipHtml(card);
+                tooltip.style.display = 'block';
+            });
+
+            grid.addEventListener('mouseout', function(e) {
+                var card = e.target.closest('.plant-card');
+                var related = e.relatedTarget ? e.relatedTarget.closest('.plant-card') : null;
+                if (card && card !== related) {
+                    tooltip.style.display = 'none';
+                }
+            });
+
+            grid.addEventListener('mousemove', function(e) {
+                if (tooltip.style.display !== 'block') return;
+                var x = e.pageX + 16;
+                var y = e.pageY + 16;
+                var tw = tooltip.offsetWidth;
+                var th = tooltip.offsetHeight;
+                if (x + tw > window.scrollX + window.innerWidth - 8) {
+                    x = e.pageX - tw - 16;
+                }
+                if (y + th > window.scrollY + window.innerHeight - 8) {
+                    y = e.pageY - th - 16;
+                }
+                tooltip.style.left = x + 'px';
+                tooltip.style.top = y + 'px';
+            });
+        })();
+    </script>
+</body>
+</html>
