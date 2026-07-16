@@ -70,10 +70,10 @@ Toxicity data is sourced from ASPCA, RHS, Blue Cross, and species-specific veter
 
 </div>
 
-- **Filter by plant type** -- perennial, shrub, tree, climber, bulb, annual, or indoor
-- **Filter by purpose** -- aesthetic (visual appeal), aromatic (fragrance), edible (fruit, veg, herbs), or functional (hedging, wildlife, screening)
+- Filters filters work in tandem
+  - **Filter by plant type** -- perennial, shrub, tree, climber, bulb, annual, or indoor
+  - **Filter by purpose** -- aesthetic (visual appeal), aromatic (fragrance), edible (fruit, veg, herbs), or functional (hedging, wildlife, screening)
 - **Sort** by best match, least suitable, or alphabetically
-- Filters work in combination and can be toggled on and off
 
 <div align="center">
 
