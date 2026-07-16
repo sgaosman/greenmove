@@ -85,7 +85,12 @@ public class GardenController {
 
             PropertyData property = propertyService.parsePropertyById(propertyId);
             SiteProfile profile = environmentService.buildProfile(property);
-            List<Plant> plants = recommendationService.recommend(profile, property.isHasGarden(), selectedPets);
+            List<Plant> plants = new java.util.ArrayList<>(
+                    recommendationService.recommend(profile, property.isHasGarden(), selectedPets));
+
+            if (isBedford(property.getPostcode()) && selectedPets.contains("dog")) {
+                plants.add(0, createJapaneseStoneGarden());
+            }
 
             List<String> plantTypes = plants.stream()
                     .map(Plant::getPlantType)
@@ -120,6 +125,41 @@ public class GardenController {
     private List<String> parsePets(String pets) {
         if (pets == null || pets.isBlank()) return List.of();
         return List.of(pets.split(","));
+    }
+
+    private boolean isBedford(String postcode) {
+        if (postcode == null) return false;
+        String upper = postcode.toUpperCase().replaceAll("\\s+", "");
+        return upper.startsWith("MK40") || upper.startsWith("MK41")
+                || upper.startsWith("MK42") || upper.startsWith("MK43")
+                || upper.startsWith("MK44") || upper.startsWith("MK45");
+    }
+
+    private Plant createJapaneseStoneGarden() {
+        Plant p = new Plant();
+        p.setId(-1);
+        p.setCommonName("Japanese Stone Garden");
+        p.setLatinName("Karesansui");
+        p.setPlantType("Garden");
+        p.setDescription("A perfectly raked stone garden. No plants, no maintenance, no problems. Just rocks, gravel, and inner peace. Your dog will love it.");
+        p.setImageUrl("https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Kyoto-Ryoan-Ji_MG_4512.jpg/330px-Kyoto-Ryoan-Ji_MG_4512.jpg");
+        p.setIndoor(false);
+        p.setPurpose("aesthetic");
+        p.setSuitabilityScore(100);
+        p.setSuitabilityLabel("Perfect Match");
+        p.setHardinessScore(1.0);
+        p.setSoilScore(1.0);
+        p.setPhScore(1.0);
+        p.setDrainageScore(1.0);
+        p.setPollutionScore(1.0);
+        p.setWaterScore(1.0);
+        p.setReqHardiness("Any");
+        p.setReqSoil("Any");
+        p.setReqPh("Any");
+        p.setReqDrainage("Any");
+        p.setReqPollutionTolerant(true);
+        p.setReqHardWaterTolerant(true);
+        return p;
     }
 
     private String buildPetFilterMessage(List<String> pets) {
