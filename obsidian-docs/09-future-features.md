@@ -26,6 +26,7 @@ Features are grouped by category. Priority is indicated as P0 (critical), P1 (hi
 | Persistent Database | P1 | Migrate shopping cache from SQLite to PostgreSQL so cached results survive redeployments |
 | Monitoring and Health Checks | P2 | Add Spring Boot Actuator for `/actuator/health` and `/actuator/metrics`, plus external uptime monitoring |
 | Shopping Quota Management | P2 | Track SerpApi usage against the monthly limit and surface quota status to the user rather than silently degrading |
+| Shopping Direct Links and Pricing | P2 | Improve accuracy of Google Shopping result links by expanding the merchant URL mapping and using SerpApi's immersive product API to retrieve exact product page URLs and up-to-date prices rather than search-page redirects |
 | Swagger / OpenAPI | P3 | Add SpringDoc OpenAPI for interactive API documentation at `/swagger-ui.html`. Requires adding `springdoc-openapi-starter-webmvc-ui` dependency to `build.gradle` |
 
 ## User Features

@@ -84,14 +84,16 @@ public class ShoppingClient {
             List<ShoppingResult> items = new ArrayList<>();
             for (JsonElement el : results) {
                 JsonObject item = el.getAsJsonObject();
-                String link = getStr(item, "product_link");
-                if (link == null) link = getStr(item, "link");
+                String title = getStr(item, "title");
+                String source = getStr(item, "source");
+                String link = resolveGoogleShoppingLink(
+                        getStr(item, "link"), getStr(item, "product_link"), title, source);
                 String badge = getStr(item, "tag");
                 if (badge == null) badge = getStr(item, "badge");
                 items.add(new ShoppingResult(
-                        getStr(item, "title"),
+                        title,
                         link,
-                        getStr(item, "source"),
+                        source,
                         getStr(item, "source_icon"),
                         getStr(item, "price"),
                         getDouble(item, "extracted_price"),
@@ -266,12 +268,14 @@ public class ShoppingClient {
             List<ShoppingResult> items = new ArrayList<>();
             for (JsonElement el : results) {
                 JsonObject item = el.getAsJsonObject();
-                String link = getStr(item, "product_link");
-                if (link == null) link = getStr(item, "link");
+                String title = getStr(item, "title");
+                String source = getStr(item, "source");
+                String link = resolveGoogleShoppingLink(
+                        getStr(item, "link"), getStr(item, "product_link"), title, source);
                 String badge = getStr(item, "tag");
                 if (badge == null) badge = getStr(item, "badge");
                 items.add(new ShoppingResult(
-                        getStr(item, "title"), link, getStr(item, "source"), getStr(item, "source_icon"),
+                        title, link, source, getStr(item, "source_icon"),
                         getStr(item, "price"), getDouble(item, "extracted_price"), getStr(item, "old_price"),
                         getStr(item, "thumbnail"), getDouble(item, "rating"), getInt(item, "reviews"),
                         getStr(item, "delivery"), null, badge, "google_shopping"
@@ -307,6 +311,24 @@ public class ShoppingClient {
             }
             return items;
         }
+    }
+
+    private static String resolveGoogleShoppingLink(String link, String productLink, String title, String source) {
+        String raw = link != null ? link : productLink;
+        if (raw != null && !raw.contains("google.co") && !raw.contains("google.com")) {
+            return raw;
+        }
+        String encoded = URLEncoder.encode(title != null ? title : "", StandardCharsets.UTF_8);
+        String srcLower = source != null ? source.toLowerCase() : "";
+        if (srcLower.contains("amazon")) return "https://www.amazon.co.uk/s?k=" + encoded;
+        if (srcLower.contains("crocus")) return "https://www.crocus.co.uk/search/_/" + encoded + "/";
+        if (srcLower.contains("b&q") || srcLower.contains("diy.com")) return "https://www.diy.com/search?term=" + encoded;
+        if (srcLower.contains("thompson") && srcLower.contains("morgan")) return "https://www.thompson-morgan.com/search?q=" + encoded;
+        if (srcLower.contains("suttons")) return "https://www.suttons.co.uk/search?q=" + encoded;
+        if (srcLower.contains("rhs")) return "https://www.rhsplants.co.uk/search?q=" + encoded;
+        if (srcLower.contains("hedges direct")) return "https://www.hedgesdirect.co.uk/search?q=" + encoded;
+        String sourceEncoded = URLEncoder.encode(source != null ? source : "", StandardCharsets.UTF_8);
+        return "https://www.google.com/search?q=" + encoded + "+" + sourceEncoded;
     }
 
     private static String getStr(JsonObject obj, String key) {

@@ -166,3 +166,4 @@ Buy, rent, new homes, and student property pages from Rightmove. Commercial and 
 - **Shopping Quota Management** -- track SerpApi usage against the monthly limit and surface quota status to the user rather than silently degrading
 - **Rightmove Format Change Detection** -- automated smoke tests against known property IDs to alert when the PAGE_MODEL format changes
 - **Graceful Degradation Indicators** -- surface to the user when environmental data has fallen back to defaults so they know which parts of their site profile are estimated rather than measured
+- **Shopping Direct Links and Pricing** -- improve accuracy of Google Shopping result links by expanding the merchant URL mapping and using SerpApi's immersive product API to retrieve exact product page URLs and up-to-date prices rather than search-page redirects
