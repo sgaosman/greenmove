@@ -52,7 +52,7 @@ public class GardenController {
     @GetMapping("/")
     public String home(Model model) {
         model.addAttribute("petOptions", PET_OPTIONS);
-        return "index";
+        return "landing";
     }
 
     @PostMapping("/search")
