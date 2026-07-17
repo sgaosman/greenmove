@@ -31,14 +31,14 @@
 2. Verify the `MYTAPWATER_API_KEY` environment variable is set
 3. The postcode estimation groups large regions into three hardness bands, which may not reflect local variation
 
-### Shopping result links go to localhost or are broken
+### Shopping result links go to a Google consent page or show 400 errors
 
-**Cause:** Stale cached results in the shopping cache. This was a historical issue where Google Shopping API results were cached with incorrect URLs before a bug fix (the API uses `product_link` not `link`).
+**Cause:** SerpApi's Google Shopping engine returns Google internal URLs for both `link` and `product_link` fields. For UK users these redirect through Google's GDPR consent flow, which fails with a 400 error.
 
-**Fix:**
-1. Delete the SQLite database to clear the cache: `rm garden_planner.db`
-2. Restart the application -- it will recreate the database and re-seed plant data
-3. Shopping results will be freshly fetched from SerpApi
+**Fix:** This is handled automatically by `resolveGoogleShoppingLink()` in `ShoppingClient.java`, which maps the retailer source name (e.g. "Amazon", "Crocus", "B&Q") to a direct merchant search URL. If you see this issue:
+1. Check that `ShoppingClient.resolveGoogleShoppingLink()` has a mapping for the retailer in question
+2. If the retailer is unmapped, the fallback is a Google web search -- consider adding a new mapping
+3. To clear stale cached results with old-format URLs, delete the database: `rm garden_planner.db` and restart
 
 ### First load is very slow (~30 seconds)
 

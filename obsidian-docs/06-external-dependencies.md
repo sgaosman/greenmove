@@ -155,7 +155,7 @@ AQI is described as:
 
 **How it works:** Two separate engines via the same API:
 
-1. **Google Shopping** (`engine=google_shopping`): Searches for UK plant products. Returns `shopping_results` array. Uses `product_link` for URLs and `tag` for badges (not `link`/`badge`).
+1. **Google Shopping** (`engine=google_shopping`): Searches for UK plant products. Returns `shopping_results` array. Both `link` and `product_link` fields from SerpApi are Google internal URLs that trigger GDPR consent pages for UK users, so `resolveGoogleShoppingLink()` maps the retailer source name to a direct merchant search URL (e.g. Amazon, Crocus, B&Q). Falls back to a Google web search if the source is unrecognised.
 
 2. **eBay** (`engine=ebay`, `ebay_domain=ebay.co.uk`): Searches eBay UK. Returns `organic_results` array. Price and reviews are nested objects (`price.raw`, `price.extracted`, `reviews.rating`, `reviews.count`).
 

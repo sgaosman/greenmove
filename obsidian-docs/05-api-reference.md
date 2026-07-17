@@ -10,7 +10,7 @@ GreenMove exposes a small set of HTTP endpoints. The application is server-rende
 
 **Description:** Landing page with the Rightmove URL input form and pet selector.
 
-**Response:** HTML page (`index.html` template).
+**Response:** HTML page (`landing.html` template).
 
 **Model attributes:**
 - `petOptions` -- ordered map of pet keys to display names

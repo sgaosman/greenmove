@@ -53,7 +53,7 @@ graph TB
         end
 
         subgraph "Templates"
-            IDX[index.html]
+            IDX[landing.html]
             LOAD[loading.html]
             RES[results.html]
             ERR[error.html]
@@ -245,7 +245,7 @@ garden-planner/
       RecommendationService.java    # Plant recommendation entry point
   src/main/resources/
     templates/
-      index.html                    # Landing page
+      landing.html                  # Landing page
       loading.html                  # Loading spinner
       results.html                  # Plant results + shopping panel
       error.html                    # Error page
