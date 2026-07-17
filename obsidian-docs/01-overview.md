@@ -4,7 +4,7 @@
 
 GreenMove is a web application that helps UK property buyers and renters plan a garden for any property they find on Rightmove. Users paste a Rightmove property URL, and the app analyses the real environmental conditions at that location to recommend plants that will thrive there.
 
-The core insight is that gardening advice is highly location-specific. Soil type, rainfall, frost risk, air quality, and water hardness all vary significantly across the UK and all affect which plants succeed. GreenMove automates this analysis by fetching real data from public APIs and matching it against a curated plant database.
+To absolutely nobody's surprise, gardening advice is highly location-specific. Aspects such as soil type, rainfall, frost risk, air quality and water hardness all vary significantly across the UK and all affect which plants succeed in your (hopefully-to-be) home. GreenMove automates this analysis by fetching real data from public APIs and matching it against an internally curated plant database.
 
 ## Target Audience
 
