@@ -2,7 +2,7 @@
 -- Generated: 2026-07-16
 -- Plants with images: 43/96
 
-UPDATE plants SET image_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Lavandula_angustifolia_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-087.jpg/330px-Lavandula_angustifolia_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-087.jpg' WHERE id = 1;
+UPDATE plants SET image_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Lavandula_angustifolia_lavender_Lavendel_01.jpg/330px-Lavandula_angustifolia_lavender_Lavendel_01.jpg' WHERE id = 1;
 UPDATE plants SET image_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Rhododendron_ponticum_ssp._baeticum_in_Cambarinho_Botanical_Reserve%2C_Portugal.JPG/330px-Rhododendron_ponticum_ssp._baeticum_in_Cambarinho_Botanical_Reserve%2C_Portugal.JPG' WHERE id = 3;
 UPDATE plants SET image_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Dryopteris_filix_mas_nf.jpg/330px-Dryopteris_filix_mas_nf.jpg' WHERE id = 4;
 UPDATE plants SET image_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Clematis_Montana_02.jpg/330px-Clematis_Montana_02.jpg' WHERE id = 5;
@@ -73,7 +73,7 @@ UPDATE plants SET image_url = 'https://upload.wikimedia.org/wikipedia/commons/th
 UPDATE plants SET image_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Caltha_palustris_plant.JPG/330px-Caltha_palustris_plant.JPG' WHERE id = 67;
 UPDATE plants SET image_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Sibirische_Schwertlilie%2C_Iris_sibirica_06.JPG/330px-Sibirische_Schwertlilie%2C_Iris_sibirica_06.JPG' WHERE id = 68;
 UPDATE plants SET image_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Ligularia_sibirica-Ligulaire_de_Sib%C3%A9rie.JPG/330px-Ligularia_sibirica-Ligulaire_de_Sib%C3%A9rie.JPG' WHERE id = 69;
-UPDATE plants SET image_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/203_Vaccinum_myrtillus_L.jpg/330px-203_Vaccinum_myrtillus_L.jpg' WHERE id = 76;
+UPDATE plants SET image_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Bilberry.jpg/330px-Bilberry.jpg' WHERE id = 76;
 UPDATE plants SET image_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Betula_pendula_Finland.jpg/330px-Betula_pendula_Finland.jpg' WHERE id = 77;
 UPDATE plants SET image_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Hawthorn_fruit.JPG/330px-Hawthorn_fruit.JPG' WHERE id = 79;
 UPDATE plants SET image_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Divlja_ruza_cvijet_270508.jpg/330px-Divlja_ruza_cvijet_270508.jpg' WHERE id = 80;
